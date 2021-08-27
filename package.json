@@ -1,16 +1,29 @@
 {
-  "name": "nodeserver",
+  "name": "nodetest",
   "version": "1.0.0",
-  "description": "nodeserver test",
-  "main": "index.js",
+  "description": "giti 및 github 테스트용",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeeSM91/test.git"
   },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LeeSM91/test/issues"
+  },
+  "homepage": "https://github.com/LeeSM91/test#readme",
   "dependencies": {
-    "express": "^4.17.1",
-    "nodemon": "^2.0.12"
+    "express": "^4.17.1"
+  },
+  "engines":{
+    "node": "v14.17.5",
+    "npm": "7.20.0"
   }
+  
+  
 }
