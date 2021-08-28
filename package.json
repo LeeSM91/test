@@ -1,29 +1,9 @@
 {
-  "name": "nodetest",
-  "version": "1.0.0",
-  "description": "giti 및 github 테스트용",
-  "main": "app.js",
-  "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/LeeSM91/test.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/LeeSM91/test/issues"
-  },
-  "homepage": "https://github.com/LeeSM91/test#readme",
+  "name": "webrtc-codelab",
+  "version": "0.0.1",
+  "description": "WebRTC codelab",
   "dependencies": {
-    "express": "^4.17.1"
-  },
-  "engines":{
-    "node": "v14.17.5",
-    "npm": "7.20.0"
+    "node-static": "^0.7.10",
+    "socket.io": "^2.0.4"
   }
-  
-  
 }
