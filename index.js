@@ -1,94 +1,55 @@
-'use strict';
+const express = require("express");
+const socket = require("socket.io");
+const app = express();
 
-var os = require('os');
-var nodeStatic = require('node-static');
-//var http = require('http');
-var socketIO = require('socket.io');
 
-const https = require('https');
-const fs = require('fs');
+let server = app.listen(process.env.PORT||4000, function () {
+  console.log("흐이이익 서버 가동된다아아앗");
+});
 
-var PORT = process.env.PORT
+app.use(express.static(__dirname+"/public"));
 
-const options = {
-  key: fs.readFileSync('./private.pem'),
-  cert: fs.readFileSync('./public.pem')
-};
 
-var fileServer = new(nodeStatic.Server)();
-let app = https.createServer(options, (req,res)=>{
-  fileServer.serve(req, res);
-}).listen(PORT);
+let io = socket(server);
 
-console.log('Started chating server...');
 
-var io = socketIO.listen(app);
-io.sockets.on('connection', function(socket) {
+io.on("connection", function (socket) {
+  console.log("User Connected :" + socket.id);
 
-  // convenience function to log server messages on the client
-  function log() {
-    var array = ['Message from server:'];
-    array.push.apply(array, arguments);
-    socket.emit('log', array);
-  }
 
-  socket.on('message', function(message) {
-    log('Client said: ', message);
-	
-	if (message==="bye" && socket.rooms['foo']) {
-		io.of('/').in('foo').clients((error, socketIds) => {
-		if (error) throw error;
+  socket.on("join", function (roomName) {
+    let rooms = io.sockets.adapter.rooms;
+    let room = rooms.get(roomName);
 
-		socketIds.forEach(socketId => {
-		//	if (socket.id===socketId) console.log('-------------------************');
-//			else socket.broadcast.emit('message', message);
-			io.sockets.sockets[socketId].leave('foo');
-		});
-
-		});
-	} //else {
-		// for a real app, would be room-only (not broadcast)
-		socket.broadcast.emit('message', message);
-		
-  });
-
-  socket.on('create or join', function(room) {
-    log('Received request to create or join room ' + room);
-
-    var clientsInRoom = io.sockets.adapter.rooms[room];
-    var numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0;
-    log('Room ' + room + ' now has ' + numClients + ' client(s)');
-
-    if (numClients === 0) {
-      socket.join(room);
-      log('Client ID ' + socket.id + ' created room ' + room);
-      socket.emit('created', room, socket.id);
-	  console.log('created');
-    } else if (numClients === 1) {
-      log('Client ID ' + socket.id + ' joined room ' + room);
-      io.sockets.in(room).emit('join', room);
-      socket.join(room);
-      socket.emit('joined', room, socket.id);
-      io.sockets.in(room).emit('ready');
-	  console.log('joined');
-    } else { // max two clients
-      socket.emit('full', room);
+    if (room == undefined) {
+      socket.join(roomName);
+      socket.emit("created");
+    } else if (room.size <= 5) {
+      socket.join(roomName);
+      socket.emit("joined");
+    } else {
+      socket.emit("full");
     }
+    console.log(rooms);
   });
 
-  socket.on('ipaddr', function() {
-    var ifaces = os.networkInterfaces();
-    for (var dev in ifaces) {
-      ifaces[dev].forEach(function(details) {
-        if (details.family === 'IPv4' && details.address !== '127.0.0.1') {
-          socket.emit('ipaddr', details.address);
-        }
-      });
-    }
+  socket.on("ready", function (roomName) {
+    socket.broadcast.to(roomName).emit("ready"); 
   });
 
-  socket.on('bye', function(){
-    console.log('received bye');
+
+  socket.on("candidate", function (candidate, roomName) {
+    console.log(candidate);
+    socket.broadcast.to(roomName).emit("candidate", candidate);
   });
 
+
+  socket.on("offer", function (offer, roomName) {
+    socket.broadcast.to(roomName).emit("offer", offer); 
+  });
+
+
+  socket.on("answer", function (answer, roomName) {
+    socket.broadcast.to(roomName).emit("answer", answer); 
+  });
 });
